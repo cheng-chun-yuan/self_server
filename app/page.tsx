@@ -20,8 +20,6 @@ export default function Home() {
   const [selfApp, setSelfApp] = useState<SelfApp | null>(null);
   const [universalLink, setUniversalLink] = useState("");
   const [userId, setUserId] = useState(ethers.ZeroAddress);
-  // Use useMemo to cache the array to avoid creating a new array on each render
-  const excludedCountries = useMemo(() => [countries.NORTH_KOREA], []);
 
   // Use useEffect to ensure code only executes on the client side
   useEffect(() => {
@@ -36,7 +34,7 @@ export default function Home() {
         userId: userId,
         endpointType: "staging_https",
         userIdType: "hex", // use 'hex' for ethereum address or 'uuid' for uuidv4
-        userDefinedData: "Bonjour Cannes!",
+        userDefinedData: "Identity Check!",
         disclosures: {
 
         // // what you want to verify from users' identity
@@ -45,13 +43,7 @@ export default function Home() {
           // excludedCountries: [countries.BELGIUM],
 
         // //what you want users to reveal
-          // name: false,
-          // issuing_state: true,
           nationality: true,
-          // date_of_birth: true,
-          // passport_number: false,
-          gender: true,
-          // expiry_date: false,
         }
       }).build();
 

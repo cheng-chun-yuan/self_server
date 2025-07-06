@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { countries, Country3LetterCode, SelfAppDisclosureConfig } from "@selfxyz/common";
 import {
-  countryCodes,
   SelfBackendVerifier,
   AllIds,
   DefaultConfigStore,
@@ -29,7 +27,7 @@ export async function POST(req: NextRequest) {
     const configStore = new DefaultConfigStore(disclosures_config);
 
     const selfBackendVerifier = new SelfBackendVerifier(
-      "self-workshop",
+      "self-check",
       process.env.NEXT_PUBLIC_SELF_ENDPOINT || "",
       true,
       AllIds,
@@ -52,28 +50,14 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    const saveOptions = (await configStore.getConfig(
-      result.userData.userIdentifier
-    )) as unknown as SelfAppDisclosureConfig;
-
     if (result.isValidDetails.isValid) {
-
+      const disclosures = result.discloseOutput as Record<string, unknown>;
+      
       return NextResponse.json({
         status: "success",
         result: result.isValidDetails.isValid,
-        credentialSubject: result.discloseOutput,
-        verificationOptions: {
-          minimumAge: saveOptions.minimumAge,
-          ofac: saveOptions.ofac,
-          excludedCountries: saveOptions.excludedCountries?.map(
-            (countryName) => {
-              const entry = Object.entries(countryCodes).find(
-                ([_, name]) => name === countryName
-              );
-              return entry ? entry[0] : countryName;
-            }
-          ),
-        },
+        country: disclosures?.country,
+        ageVerified: typeof disclosures?.age === 'number' && disclosures.age >= 18,
       });
     } else {
       return NextResponse.json({
